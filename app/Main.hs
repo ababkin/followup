@@ -45,7 +45,7 @@ curl -v -X GET "$API/things"
 
 main :: IO ()
 main =
-  "followup" `withConfig` config
+  "followup-qmulus" `withConfig` config
 
     where
       config :: ConfigProgram ()
