@@ -123,10 +123,11 @@ getContactLogs
   -> LambdaProgram ()
 getContactLogs ddbTableId event =
   withContactId event $ \cid ->
-    queryDdbRecords ddbTableId (keyCond cid) $ \(logs :: [Log]) ->
+    queryDdbRecords ddbTableId keyCond (expAttrs cid) $ \(logs :: [Log]) ->
       success $ toJSON logs
   where
-    keyCond cid = Just $ T.concat ["ContactId = \"", cid, "\""]
+    keyCond = Just $ T.concat ["ContactId = :cid"]
+    expAttrs = SHM.singleton ":cid" . stringAttr
 
 
 putContactLog

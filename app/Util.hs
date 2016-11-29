@@ -23,7 +23,7 @@ import           Qi.Config.AWS.Api               (ApiEvent (..),
                                                   RequestBody (..), aeBody,
                                                   aeParams, rpPath)
 import           Qi.Config.AWS.DDB               (DdbAttrDef (..),
-                                                  DdbAttrType (..),
+                                                  DdbAttrType (..), DdbAttrs,
                                                   DdbProvCap (..))
 import           Qi.Config.Identifier            (DdbTableId)
 import           Qi.Program.Lambda.Interface     (LambdaProgram)
@@ -51,10 +51,11 @@ queryDdbRecords
   :: FromAttrs a
   => DdbTableId
   -> Maybe Text
+  -> DdbAttrs
   -> ([a] -> LambdaProgram ())
   -> LambdaProgram ()
-queryDdbRecords ddbTableId keyCond f = do
-  res <- LI.queryDdbRecords ddbTableId keyCond
+queryDdbRecords ddbTableId keyCond expAttrs f = do
+  res <- LI.queryDdbRecords ddbTableId keyCond expAttrs
   withSuccess (res^.qrsResponseStatus) $
     case forM (res^.qrsItems) parseAttrs of
       Success records ->
