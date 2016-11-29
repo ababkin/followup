@@ -24,9 +24,11 @@ data Log = Log {
 } deriving (Generic, Show)
 
 instance ToJSON Log where
-  toEncoding = genericToEncoding defaultOptions{ fieldLabelModifier = drop 1 . fmap toLower }
+  toJSON = genericToJSON defaultOptions{ fieldLabelModifier = drop 1 . fmap toLower }
 
 instance FromJSON Log where
+  parseJSON = genericParseJSON defaultOptions { fieldLabelModifier = drop 1 . fmap toLower }
+
 
 instance FromAttrs Log where
   parseAttrs hm = Log

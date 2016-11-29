@@ -23,12 +23,12 @@ data Contact = Contact {
   , cLastName  :: Text
 } deriving (Generic, Show)
 
-
 instance ToJSON Contact where
-  toEncoding = genericToEncoding defaultOptions{ fieldLabelModifier = drop 1 . fmap toLower }
-
+  toJSON = genericToJSON defaultOptions{ fieldLabelModifier = drop 1 . fmap toLower }
 
 instance FromJSON Contact where
+  parseJSON = genericParseJSON defaultOptions { fieldLabelModifier = drop 1 . fmap toLower }
+
 
 instance FromAttrs Contact where
   parseAttrs hm = Contact
