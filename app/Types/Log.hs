@@ -6,7 +6,8 @@ module Types.Log where
 
 import           Control.Lens         hiding (view, (.=))
 import           Data.Aeson
-import           Data.Aeson.Types     (typeMismatch)
+import           Data.Aeson.Types     (fieldLabelModifier, typeMismatch)
+import           Data.Char            (toLower)
 import qualified Data.HashMap.Strict  as SHM
 import           Data.Text            (Text)
 import qualified Data.Text            as T
@@ -23,7 +24,7 @@ data Log = Log {
 } deriving (Generic, Show)
 
 instance ToJSON Log where
-  toEncoding = genericToEncoding defaultOptions
+  toEncoding = genericToEncoding defaultOptions{ fieldLabelModifier = drop 1 . fmap toLower }
 
 instance FromJSON Log where
 

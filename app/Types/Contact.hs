@@ -6,7 +6,8 @@ module Types.Contact where
 
 import           Control.Lens         hiding (view, (.=))
 import           Data.Aeson
-import           Data.Aeson.Types     (typeMismatch)
+import           Data.Aeson.Types     (fieldLabelModifier, typeMismatch)
+import           Data.Char            (toLower)
 import qualified Data.HashMap.Strict  as SHM
 import           Data.Text            (Text)
 import qualified Data.Text            as T
@@ -22,8 +23,10 @@ data Contact = Contact {
   , cLastName  :: Text
 } deriving (Generic, Show)
 
+
 instance ToJSON Contact where
-  toEncoding = genericToEncoding defaultOptions
+  toEncoding = genericToEncoding defaultOptions{ fieldLabelModifier = drop 1 . fmap toLower }
+
 
 instance FromJSON Contact where
 
