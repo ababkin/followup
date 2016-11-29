@@ -33,11 +33,11 @@ import           Util                        (deleteDdbRecord, getDdbRecord,
 
 -- Use the curl commands below to test-drive the endpoints (substitute your unique api stage url first):
 {-
-export API="https://dvmcyzbxfj.execute-api.us-east-1.amazonaws.com/v1"
-curl -v -X POST -H "Content-Type: application/json" -d "{\"cId\": \"342345354\", \"cFirstName\": \"Alex\", \"cLastName\": \"Babkin\"}" "$API/contacts/342345354"
+export API="https://rmgn1xpb06.execute-api.us-east-1.amazonaws.com/v1"
+curl -v -X POST -H "Content-Type: application/json" -d "{\"id\": \"342345354\", \"firstname\": \"Alex\", \"lastname\": \"Babkin\"}" "$API/contacts/342345354"
 curl -v -X GET "$API/contacts/342345354"
-curl -v -X POST -H "Content-Type: application/json" -d "{\"name\": \"chair\", \"shape\": \"square\", \"size\": 10}" "$API/things/chair"
-curl -v -X GET "$API/things"
+curl -v -X POST -H "Content-Type: application/json" -d "{\"contactid\": \"342345354\", \"timestamp\": \"today\", \"body\": \"my records\"}" "$API/contacts/342345354/logs"
+curl -v -X GET "$API/contacts/342345354/logs"
 curl -v -X DELETE "$API/things/mycup"
 curl -v -X GET "$API/things"
 -}
@@ -126,7 +126,7 @@ getContactLogs ddbTableId event =
     queryDdbRecords ddbTableId (keyCond cid) $ \(logs :: [Log]) ->
       success $ toJSON logs
   where
-    keyCond cid = Just $ T.concat ["ContactId = '", cid, "'"]
+    keyCond cid = Just $ T.concat ["ContactId = \"", cid, "\""]
 
 
 putContactLog
