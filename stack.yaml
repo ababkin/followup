@@ -39,7 +39,7 @@ packages:
 - '.'
 - location:
     git: https://github.com/ababkin/qmuli.git
-    commit: 868c2ec6cabe81b11ac2101e71da5c34dda49524
+    commit: b8acd7293c850a9601d8d6ac8c4f260379f2d4e1
 - location:
     git: https://github.com/ababkin/stratosphere.git
     commit: 002208ba0a6e19174c6ae4bf581ade6701708e1a
