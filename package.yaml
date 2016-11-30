@@ -23,6 +23,7 @@ dependencies:
   - conduit-extra
   - resourcet
   - heredoc
+  - hashable
 
 library:
   source-dirs:

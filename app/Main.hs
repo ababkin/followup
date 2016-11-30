@@ -7,13 +7,14 @@ module Main where
 import           Control.Lens                hiding (view, (.=))
 import           Control.Monad               (forM, void, (<=<))
 import           Data.Aeson
+import           Data.Hashable               (hash)
 import qualified Data.HashMap.Strict         as SHM
 import qualified Data.Text                   as T
 import           Prelude                     hiding (log)
 
 import           Qi                          (withConfig)
 import           Qi.Config.AWS.Api           (ApiEvent (..),
-                                              ApiVerb (Delete, Get, Post),
+                                              ApiVerb (Delete, Get, Post, Put),
                                               RequestBody (..), aeBody,
                                               aeParams, rpPath)
 import           Qi.Config.AWS.DDB           (DdbAttrDef (..), DdbAttrType (..),
@@ -57,11 +58,13 @@ main =
           apiResource "contacts" followup >>= \contacts -> do
             apiMethodLambda "scanContacts" Get
               contacts $ scanContacts contactsTable
+            apiMethodLambda "postContact" Post
+              contacts $ postContact contactsTable
 
             apiResource "{contactId}" contacts >>= \contact -> do
               apiMethodLambda "getContact" Get
                 contact $ getContact contactsTable
-              apiMethodLambda "putContact" Post
+              apiMethodLambda "putContact" Put
                 contact $ putContact contactsTable
               apiMethodLambda "deleteContact" Delete
                 contact $ deleteContact contactsTable
@@ -86,6 +89,19 @@ scanContacts ddbTableId _ =
   scanDdbRecords ddbTableId $ \(contacts :: [Contact]) ->
     success $ toJSON contacts
 
+postContact
+  :: DdbTableId
+  -> ApiEvent
+  -> LambdaProgram ()
+postContact ddbTableId event =
+  withContact event $ \contact ->
+    putDdbRecord ddbTableId (addId contact) $
+      successString "successfully posted contact"
+  where
+    addId :: Contact -> Contact
+    addId c = c{cId = T.pack . show $ hash c}
+
+
 getContact
   :: DdbTableId
   -> ApiEvent
@@ -94,7 +110,6 @@ getContact ddbTableId event =
   withContactId event $ \cid ->
     getDdbRecord ddbTableId (idKeys cid) $ \(contact :: Contact) ->
       success $ toJSON contact
-
 
 putContact
   :: DdbTableId

@@ -8,6 +8,7 @@ import           Control.Lens         hiding (view, (.=))
 import           Data.Aeson
 import           Data.Aeson.Types     (fieldLabelModifier, typeMismatch)
 import           Data.Char            (toLower)
+import           Data.Hashable
 import qualified Data.HashMap.Strict  as SHM
 import           Data.Text            (Text)
 import qualified Data.Text            as T
@@ -22,6 +23,10 @@ data Contact = Contact {
   , cFirstName :: Text
   , cLastName  :: Text
 } deriving (Generic, Show)
+
+instance Hashable Contact where
+  s `hashWithSalt` Contact{cFirstName, cLastName} = s `hashWithSalt` T.concat [cFirstName, cLastName]
+
 
 instance ToJSON Contact where
   toJSON = genericToJSON defaultOptions{ fieldLabelModifier = drop 1 . fmap toLower }
