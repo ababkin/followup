@@ -23,6 +23,7 @@ import           Qi.Config.Identifier        (DdbTableId)
 import           Qi.Program.Config.Interface
 import           Qi.Program.Lambda.Interface (LambdaProgram)
 import           Qi.Util.Api
+import           System.Environment          (getArgs, withArgs)
 
 import           Types
 import           Types.Contact
@@ -45,8 +46,11 @@ curl -v -X GET "$API/things"
 
 
 main :: IO ()
-main =
-  "followup-qmulus" `withConfig` config
+main = do
+  args <- getArgs
+  case args of
+    (appName:rest) -> withArgs rest $ (T.pack appName) `withConfig` config
+    _              -> putStrLn "Please provide a unique application name for your qmulus"
 
     where
       config :: ConfigProgram ()

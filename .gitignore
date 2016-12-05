@@ -1,3 +1,7 @@
-.deploy
+.cidfile
+followup
+index.js
+lambda
+lambda.zip
 *.stack-work/
 *.cabal
