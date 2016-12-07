@@ -28,7 +28,7 @@ import           Qi.Config.AWS.DDB               (DdbAttrDef (..),
 import           Qi.Config.Identifier            (DdbTableId)
 import           Qi.Program.Lambda.Interface     (LambdaProgram)
 import qualified Qi.Program.Lambda.Interface     as LI
-import           Qi.Util.Api
+import           Qi.Util
 
 import           Types
 

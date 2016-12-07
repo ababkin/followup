@@ -22,6 +22,7 @@ import           Qi.Config.AWS.DDB           (DdbAttrDef (..), DdbAttrType (..),
 import           Qi.Config.Identifier        (DdbTableId)
 import           Qi.Program.Config.Interface
 import           Qi.Program.Lambda.Interface (LambdaProgram)
+import           Qi.Util
 import           Qi.Util.Api
 import           System.Environment          (getArgs, withArgs)
 
@@ -46,44 +47,39 @@ curl -v -X GET "$API/things"
 
 
 main :: IO ()
-main = do
-  args <- getArgs
-  case args of
-    (appName:rest) -> withArgs rest $ (T.pack appName) `withConfig` config
-    _              -> putStrLn "Please provide a unique application name for your qmulus"
+main = withConfig config
+  where
+    config :: ConfigProgram ()
+    config = do
+      contactsTable <- ddbTable "contacts" (DdbAttrDef "Id" S) Nothing (DdbProvCap 1 1)
+      logsTable     <- ddbTable "logs"     (DdbAttrDef "ContactId" S) Nothing (DdbProvCap 1 1)
 
-    where
-      config :: ConfigProgram ()
-      config = do
-        contactsTable <- ddbTable "contacts" (DdbAttrDef "Id" S) Nothing (DdbProvCap 1 1)
-        logsTable     <- ddbTable "logs"     (DdbAttrDef "ContactId" S) Nothing (DdbProvCap 1 1)
+      api "followup" >>= \followup ->
+        apiResource "contacts" followup >>= \contacts -> do
+          apiMethodLambda "scanContacts" Get
+            contacts $ scanContacts contactsTable
+          apiMethodLambda "postContact" Post
+            contacts $ postContact contactsTable
 
-        api "followup" >>= \followup ->
-          apiResource "contacts" followup >>= \contacts -> do
-            apiMethodLambda "scanContacts" Get
-              contacts $ scanContacts contactsTable
-            apiMethodLambda "postContact" Post
-              contacts $ postContact contactsTable
-
-            apiResource "{contactId}" contacts >>= \contact -> do
-              apiMethodLambda "getContact" Get
-                contact $ getContact contactsTable
-              apiMethodLambda "putContact" Put
-                contact $ putContact contactsTable
-              apiMethodLambda "deleteContact" Delete
-                contact $ deleteContact contactsTable
+          apiResource "{contactId}" contacts >>= \contact -> do
+            apiMethodLambda "getContact" Get
+              contact $ getContact contactsTable
+            apiMethodLambda "putContact" Put
+              contact $ putContact contactsTable
+            apiMethodLambda "deleteContact" Delete
+              contact $ deleteContact contactsTable
 
 
-              apiResource "logs" contact >>= \logs -> do
-                apiMethodLambda "getContactLogs" Get
-                  logs $ getContactLogs logsTable
+            apiResource "logs" contact >>= \logs -> do
+              apiMethodLambda "getContactLogs" Get
+                logs $ getContactLogs logsTable
 
-                apiMethodLambda "putContactLog" Post
-                  logs $ putContactLog logsTable
+              apiMethodLambda "putContactLog" Post
+                logs $ putContactLog logsTable
 
 
 
-        return ()
+      return ()
 
 scanContacts
   :: DdbTableId
