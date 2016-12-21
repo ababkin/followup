@@ -17,13 +17,10 @@ dependencies:
   - mtl
   - unordered-containers
   - lens
-  - amazonka-s3
   - amazonka-dynamodb
-  - conduit
-  - conduit-extra
-  - resourcet
   - heredoc
   - hashable
+  - data-default >= 0.7 && < 0.8
 
 library:
   source-dirs:

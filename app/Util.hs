@@ -17,11 +17,6 @@ import           Network.AWS.DynamoDB.PutItem
 import           Network.AWS.DynamoDB.Query
 import           Network.AWS.DynamoDB.Scan
 
-import           Qi                              (withConfig)
-import           Qi.Config.AWS.Api               (ApiEvent (..),
-                                                  ApiVerb (Delete, Get, Post),
-                                                  RequestBody (..), aeBody,
-                                                  aeParams, rpPath)
 import           Qi.Config.AWS.DDB               (DdbAttrDef (..),
                                                   DdbAttrType (..), DdbAttrs,
                                                   DdbProvCap (..))

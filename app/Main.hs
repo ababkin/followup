@@ -7,13 +7,14 @@ module Main where
 import           Control.Lens                hiding (view, (.=))
 import           Control.Monad               (forM, void, (<=<))
 import           Data.Aeson
+import           Data.Default                (def)
 import           Data.Hashable               (hash)
 import qualified Data.HashMap.Strict         as SHM
 import qualified Data.Text                   as T
 import           Prelude                     hiding (log)
 
 import           Qi                          (withConfig)
-import           Qi.Config.AWS.Api           (ApiEvent (..),
+import           Qi.Config.AWS.ApiGw         (ApiMethodEvent (..),
                                               ApiVerb (Delete, Get, Post, Put),
                                               RequestBody (..), aeBody,
                                               aeParams, rpPath)
@@ -23,8 +24,7 @@ import           Qi.Config.Identifier        (DdbTableId)
 import           Qi.Program.Config.Interface
 import           Qi.Program.Lambda.Interface (LambdaProgram)
 import           Qi.Util
-import           Qi.Util.Api
-import           System.Environment          (getArgs, withArgs)
+import           Qi.Util.ApiGw
 
 import           Types
 import           Types.Contact
@@ -57,25 +57,25 @@ main = withConfig config
       api "followup" >>= \followup ->
         apiResource "contacts" followup >>= \contacts -> do
           apiMethodLambda "scanContacts" Get
-            contacts $ scanContacts contactsTable
+            contacts def (scanContacts contactsTable) def
           apiMethodLambda "postContact" Post
-            contacts $ postContact contactsTable
+            contacts def (postContact contactsTable) def
 
           apiResource "{contactId}" contacts >>= \contact -> do
             apiMethodLambda "getContact" Get
-              contact $ getContact contactsTable
+              contact def (getContact contactsTable) def
             apiMethodLambda "putContact" Put
-              contact $ putContact contactsTable
+              contact def (putContact contactsTable) def
             apiMethodLambda "deleteContact" Delete
-              contact $ deleteContact contactsTable
+              contact def (deleteContact contactsTable) def
 
 
             apiResource "logs" contact >>= \logs -> do
               apiMethodLambda "getContactLogs" Get
-                logs $ getContactLogs logsTable
+                logs def (getContactLogs logsTable) def
 
               apiMethodLambda "putContactLog" Post
-                logs $ putContactLog logsTable
+                logs def (putContactLog logsTable) def
 
 
 
@@ -83,7 +83,7 @@ main = withConfig config
 
 scanContacts
   :: DdbTableId
-  -> ApiEvent
+  -> ApiMethodEvent
   -> LambdaProgram ()
 scanContacts ddbTableId _ =
   scanDdbRecords ddbTableId $ \(contacts :: [Contact]) ->
@@ -91,7 +91,7 @@ scanContacts ddbTableId _ =
 
 postContact
   :: DdbTableId
-  -> ApiEvent
+  -> ApiMethodEvent
   -> LambdaProgram ()
 postContact ddbTableId event =
   withContact event $ \contact ->
@@ -104,7 +104,7 @@ postContact ddbTableId event =
 
 getContact
   :: DdbTableId
-  -> ApiEvent
+  -> ApiMethodEvent
   -> LambdaProgram ()
 getContact ddbTableId event =
   withContactId event $ \cid ->
@@ -113,7 +113,7 @@ getContact ddbTableId event =
 
 putContact
   :: DdbTableId
-  -> ApiEvent
+  -> ApiMethodEvent
   -> LambdaProgram ()
 putContact ddbTableId event =
   withContact event $ \contact ->
@@ -122,7 +122,7 @@ putContact ddbTableId event =
 
 deleteContact
   :: DdbTableId
-  -> ApiEvent
+  -> ApiMethodEvent
   -> LambdaProgram ()
 deleteContact ddbTableId event =
   withContactId event $ \cid ->
@@ -134,7 +134,7 @@ deleteContact ddbTableId event =
 
 getContactLogs
   :: DdbTableId
-  -> ApiEvent
+  -> ApiMethodEvent
   -> LambdaProgram ()
 getContactLogs ddbTableId event =
   withContactId event $ \cid ->
@@ -147,7 +147,7 @@ getContactLogs ddbTableId event =
 
 putContactLog
   :: DdbTableId
-  -> ApiEvent
+  -> ApiMethodEvent
   -> LambdaProgram ()
 putContactLog ddbTableId event =
   withLog event $ \log ->
@@ -157,7 +157,7 @@ putContactLog ddbTableId event =
 -- Util
 
 withContact
-  :: ApiEvent
+  :: ApiMethodEvent
   -> (Contact -> LambdaProgram ())
   -> LambdaProgram ()
 withContact event f = case event^.aeBody of
@@ -168,7 +168,7 @@ withContact event f = case event^.aeBody of
     argumentsError $ "Unexpected request body: " ++ show unexpected
 
 withLog
-  :: ApiEvent
+  :: ApiMethodEvent
   -> (Log -> LambdaProgram ())
   -> LambdaProgram ()
 withLog event f = case event^.aeBody of
