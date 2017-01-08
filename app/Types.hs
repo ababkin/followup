@@ -12,26 +12,7 @@ import           Data.Text            (Text)
 import qualified Data.Text            as T
 import           Network.AWS.DynamoDB (AttributeValue, attributeValue, avS)
 
-
-class FromAttrs a where
-  parseAttrs
-    :: SHM.HashMap Text AttributeValue
-    -> Result a
-
-class ToAttrs a where
-  toAttrs
-    :: a
-    -> SHM.HashMap Text AttributeValue
-
-parseStringAttr
-  :: Text
-  -> SHM.HashMap Text AttributeValue
-  -> Result Text
-parseStringAttr attrName hm =
-  maybe
-    (Error $ "could not parse attribute: " ++ T.unpack attrName)
-    return
-    $ (^.avS) =<< SHM.lookup attrName hm
+import           Qi.Util.DDB
 
 
 idKeys
@@ -39,9 +20,3 @@ idKeys
   => Text
   -> SHM.HashMap k AttributeValue
 idKeys cid = SHM.fromList [ ("Id", stringAttr cid) ]
-
-stringAttr
-  :: Text
-  -> AttributeValue
-stringAttr s = attributeValue & avS .~ Just s
-

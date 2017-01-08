@@ -15,7 +15,7 @@
 # resolver:
 #  name: custom-snapshot
 #  location: "./custom-snapshot.yaml"
-resolver: nightly-2016-12-06
+resolver: lts-7.14
 
 # User packages to be built.
 # Various formats can be used as shown in the example below.
@@ -39,14 +39,16 @@ packages:
 - '.'
 - location:
     git: https://github.com/ababkin/qmuli.git
-    commit: af26e5e161d4ef97b3e43c3093fa4678f15e2ee6
+    commit: 1f4777395da8b75edb1286290004fb86017431b7
 - location:
     git: https://github.com/ababkin/stratosphere.git
     commit: 598330b6276ca4d6fb9f8bfd66f089324402ae7e
 - location:
     git: https://github.com/abailly/system-extra.git
     commit: 6223138579dc3473cbf84fa323af64380db114cf
-
+- location:
+    git: https://github.com/ababkin/amazonka-s3-streaming.git
+    commit: 52b891e44d22e3f82a4d004ddab5612e64fe68ef
 # - 'system-extra'
 
 # Dependency packages to be pulled from upstream that are not in the resolver
@@ -54,17 +56,22 @@ packages:
 extra-deps:
 - amazonka-1.4.5
 - amazonka-cloudformation-1.4.5
+- amazonka-cloudwatch-logs-1.4.5
 - amazonka-core-1.4.5
-- amazonka-s3-1.4.5
 - amazonka-dynamodb-1.4.5
+- amazonka-lambda-1.4.5
+- amazonka-s3-1.4.5
 - amazonka-cognito-identity-1.4.5
 - amazonka-cognito-idp-1.4.5
-- turtle-1.3.0
+- amazonka-iam-1.4.5
 - managed-1.0.5
-- aeson-0.11.2.1
+- aeson-1.0.2.1
 - http-conduit-2.2.3
 - http-client-0.5.4
 - http-client-tls-0.3.3
+- turtle-1.3.0
+- stratosphere-0.3.1
+- optparse-applicative-0.13.0.0
 
 # Override default flag values for local packages and extra-deps
 flags: {}

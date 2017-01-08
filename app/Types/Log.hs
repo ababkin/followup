@@ -14,6 +14,8 @@ import qualified Data.Text            as T
 import           GHC.Generics
 import           Network.AWS.DynamoDB (AttributeValue, attributeValue, avS)
 
+import           Qi.Util.DDB
+
 import           Types
 
 
